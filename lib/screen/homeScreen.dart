@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mirror_wall/provider/provider_page.dart';
+import 'package:provider/provider.dart';
 
-final List<DropdownMenuItem<dynamic>>? items = [
-  const DropdownMenuItem(
-    child: Text('All Bookmarks'),
-    value: 1,
-  ),
-  const DropdownMenuItem(
-    child: Text('Search Engine'),
-    value: 2,
-  ),
-];
 String? selectedItem;
 
 class HomeScreen extends StatelessWidget {
@@ -17,22 +9,51 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+
+    HomeProvider homeProviderTrue = Provider.of<HomeProvider>(context,listen: true);
+    HomeProvider homeProviderFalse = Provider.of<HomeProvider>(context,listen: false);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text('My Browser'),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: DropdownButton(items: items, onChanged: (value) {
+         PopupMenuButton( initialValue: selectedItem,
+          onSelected: (value) {
 
-            }),
-          ),
+          },itemBuilder: (context) => [
+
+           const PopupMenuItem(
+             value: 1,
+             child: Text('All BookMarks'),
+           ),
+           const PopupMenuItem(
+             value:2,
+             child: Text('Search Engine'),
+           ),
+
+         ],),
         ],
       ),
-      body: Column(
+      body:  Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: TextField(
+              controller:homeProviderTrue.txtSearch,
+              decoration:  InputDecoration(
+                  suffixIcon: GestureDetector(onTap: (){
+                    String search = homeProviderTrue.txtSearch.text;
+                    homeProviderFalse.searchCategory(search);
 
+                  },child: Icon(Icons.search)),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black))),
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: Container(

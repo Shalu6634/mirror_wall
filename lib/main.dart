@@ -9,7 +9,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mirror_wall/provider/provider_page.dart';
 import 'package:mirror_wall/screen/homeScreen.dart';
+import 'package:provider/provider.dart';
 
 void main()
 {
@@ -20,11 +22,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-        getPages: [
-          GetPage(name: '/', page: () => HomeScreen(),)
-        ],
+    return ChangeNotifierProvider(
+      create: (BuildContext context)=>HomeProvider(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+
+      ),
     );
   }
 }
