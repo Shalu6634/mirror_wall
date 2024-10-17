@@ -41,19 +41,19 @@ class HomeScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(10),
             child: TextField(
-              controller:homeProviderTrue.txtSearch,
+              controller:txtSearch,
               decoration:  InputDecoration(
                   suffixIcon: GestureDetector(onTap: (){
-                    String search = homeProviderTrue.txtSearch.text;
+                    String search = txtSearch.text;
                     homeProviderFalse.searchCategory(search);
-
-                  },child: Icon(Icons.search)),
-                  enabledBorder: OutlineInputBorder(
+                  },child: const Icon(Icons.search)),
+                  enabledBorder: const OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.black)),
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.black))),
             ),
           ),
+
         ],
       ),
       bottomNavigationBar: Container(

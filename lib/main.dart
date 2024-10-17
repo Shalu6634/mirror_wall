@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       create: (BuildContext context)=>HomeProvider(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-
+      home: HomeScreen(),
       ),
     );
   }
