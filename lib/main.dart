@@ -8,7 +8,6 @@
 //home button
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:mirror_wall/provider/provider_page.dart';
 import 'package:mirror_wall/screen/homeScreen.dart';
 import 'package:provider/provider.dart';
