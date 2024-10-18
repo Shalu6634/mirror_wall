@@ -1,11 +1,12 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:mirror_wall/provider/provider_page.dart';
 import 'package:provider/provider.dart';
-import 'package:gap/gap.dart';
 
 String? selectedItem;
-InAppWebViewController? webViewController;
+// InAppWebViewController? webViewController;
+late InAppWebViewController? _webViewController;
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -13,7 +14,6 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-
     HomeProvider homeProviderTrue =
         Provider.of<HomeProvider>(context, listen: true);
     HomeProvider homeProviderFalse =
@@ -21,7 +21,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('My Browser'),
+        title: const Text('My Browser'),
         actions: [
           PopupMenuButton(
             initialValue: selectedItem,
@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
                 value: 1,
                 child: Text('All BookMarks'),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 2,
                 child: Text('Search Engine'),
               ),
@@ -40,7 +40,7 @@ class HomeScreen extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (context) {
-                    String search = txtSearch.text;
+                    String search = homeProviderTrue.txtSearch.text;
                     return AlertDialog(
                       title: const Text('Search Engine'),
                       content: Column(
@@ -79,15 +79,16 @@ class HomeScreen extends StatelessWidget {
                                 Navigator.pop(context);
                               }),
                           RadioListTile(
-                              title: Text('bing'),
-                              value: 'bing',
-                              groupValue: homeProviderTrue.selectedEngine,
-                              onChanged: (value) {
-                                homeProviderFalse
-                                    .changeSelectedSearchEngine(value!);
-                                homeProviderFalse.searchCategory(search);
-                                Navigator.pop(context);
-                              }),
+                            title: Text('bing'),
+                            value: 'bing',
+                            groupValue: homeProviderTrue.selectedEngine,
+                            onChanged: (value) {
+                              homeProviderFalse
+                                  .changeSelectedSearchEngine(value!);
+                              homeProviderFalse.searchCategory(search);
+                              Navigator.pop(context);
+                            },
+                          ),
                         ],
                       ),
                     );
@@ -98,7 +99,7 @@ class HomeScreen extends StatelessWidget {
                   context: context,
                   builder: (context) {
                     homeProviderFalse.search.toString();
-                    return Text('data'); 
+                    return Text('--');
                   },
                 );
               }
@@ -112,58 +113,45 @@ class HomeScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(right: 15, left: 15),
               child: TextField(
-                controller: txtSearch,
+                controller: homeProviderFalse.txtSearch,
                 onSubmitted: (value) {
-                  homeProviderFalse.searchCategory(value);
-                  print(value);
+                  _webViewController?.loadUrl(
+                        urlRequest: URLRequest(
+                          url: WebUri(
+                              "https://www.google.com/search?q=$value"),
+                        ),
+                      );
+                  // homeProviderFalse.searchCategory(value);
+                  print('--------------------------------------');
                 },
                 decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.black)),
+                        borderSide: const BorderSide(color: Colors.black)),
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.black))),
+                        borderSide: const BorderSide(color: Colors.black))),
               ),
             ),
           ),
         ),
       ),
-      body: Column(
-        children: [
-          (homeProviderTrue.isLoad)
-              ? const LinearProgressIndicator(color: Colors.blue)
-              : const SizedBox(
-                  height: 1,
-                ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: InAppWebView(
-                initialUrlRequest:
-                    URLRequest(url: WebUri(homeProviderTrue.webUrl)),
-                onWebViewCreated: (controller) {
-                  webViewController = controller;
-                },
-                onLoadStart: (controller, url) {
-                  homeProviderFalse.updateIsLoad(true);
-                },
-                onLoadStop: (controller, url) {
-                  homeProviderFalse.updateIsLoad(false);
-                  String search = txtSearch.text == ''
-                      ? homeProviderTrue.selectedEngine
-                      : txtSearch.text;
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
+      body: StreamBuilder(
+          stream: Connectivity().onConnectivityChanged,
+          builder: (context, snapshot) {
+            return InAppWebView(
+              initialUrlRequest:
+                  URLRequest(url: WebUri("https://www.google.com")),
+              onWebViewCreated: (InAppWebViewController controller) {
+                _webViewController = controller;
+              },
+            );
+          }),
       bottomNavigationBar: Container(
         height: 50,
         width: 100,
         decoration: BoxDecoration(color: Colors.grey.shade200),
-        child: const Row(
+        child:  Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Icon(
@@ -176,18 +164,31 @@ class HomeScreen extends StatelessWidget {
               color: Colors.grey,
               size: 29,
             ),
-            Icon(
-              Icons.arrow_back_ios,
-              color: Colors.grey,
+            GestureDetector(
+              onTap: (){
+                _webViewController?.goBack();
+              },
+              child: Icon(
+                Icons.arrow_back_ios,
+                color: Colors.grey,
+              ),
             ),
-            Icon(
+        GestureDetector(
+          onTap: (){
+            _webViewController?.reload();
+          },child: Icon(
               Icons.refresh,
               color: Colors.grey,
-            ),
+            ),),
+
+        GestureDetector(
+          onTap: (){
+            _webViewController?.goForward();
+          },child:
             Icon(
               Icons.arrow_forward_ios,
               color: Colors.grey,
-            ),
+            ),),
           ],
         ),
       ),

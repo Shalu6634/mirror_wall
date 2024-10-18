@@ -1,19 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-TextEditingController txtSearch = TextEditingController();
 
 class HomeProvider extends ChangeNotifier {
+  TextEditingController txtSearch = TextEditingController();
+
   String search = '';
   String webUrl = 'https://www.google.com/search?gs_ssp=google';
   String selectedEngine = 'Google';
   bool isLoad = true;
   List<String> historyList = [];
-  // void searchChange(String search)
-  // {
-  //   this.search = search;
-  //   notifyListeners();
-  // }
+  void searchChange(String search)
+  {
+    this.search = search;
+    notifyListeners();
+  }
   void updateIsLoad(bool status) {
     isLoad = status;
     notifyListeners();
@@ -34,23 +35,5 @@ class HomeProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
-  Future<void> addHistory(String url, String query) async {
-    try{
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      bool check = false;
-      for(int i=0; i<historyList.length; i++){
-        if(url == historyList[i].split('---').sublist(0, 1).join(" ")){
-          check = true;
-          break;
-        }
-      }
-      if(!check){
-        historyList.add("$url---$query");
-        notifyListeners();
-        sharedPreferences.setStringList("history", historyList);
-      }
-    }catch(e){
-      print("Error into store history -> $e");
-    }
-  }
+
 }
