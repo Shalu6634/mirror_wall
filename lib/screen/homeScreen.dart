@@ -5,7 +5,7 @@ import 'package:mirror_wall/provider/provider_page.dart';
 import 'package:provider/provider.dart';
 
 String? selectedItem;
-// InAppWebViewController? webViewController;
+String data = '';
 late InAppWebViewController? _webViewController;
 
 class HomeScreen extends StatelessWidget {
@@ -26,9 +26,71 @@ class HomeScreen extends StatelessWidget {
           PopupMenuButton(
             initialValue: selectedItem,
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 1,
                 child: Text('All BookMarks'),
+                onTap: () {
+                  homeProviderTrue.getData();
+                  homeProviderTrue.getListOfData();
+
+                  showDialog(
+                    context: context,
+                    builder: (context) => Dialog.fullscreen(
+                        child: Column(
+                      children: [
+                        const SizedBox(
+                          height: 10,
+                        ),
+                         Row(
+                          children: [
+                            GestureDetector(onTap: (){
+                              Navigator.of(context).pop(context);
+                            },child: Icon(Icons.arrow_back_ios)),
+
+                            Text(
+                              'All Save Data',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        (homeProviderTrue.urlData.length == 0)
+                            ? const Text('No Data ')
+                            : Column(
+                                children: [
+                                  ...List.generate(
+                                    homeProviderTrue.historyList.length,
+                                    (index) => Column(
+                                      children: [
+                                        ListTile(
+                                          onTap: () {
+                                            homeProviderTrue.historyList[index];
+                                            Navigator.of(context).pop();
+                                            // });
+                                            _webViewController?.loadUrl(
+                                              urlRequest: URLRequest(
+                                                url: WebUri(homeProviderTrue
+                                                    .urlData[index]),
+                                              ),
+                                            );
+                                          },
+                                          title: Text(
+                                            homeProviderTrue.historyList[index],
+                                          ),
+                                          subtitle: Text(
+                                              homeProviderTrue.urlData[index]),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )
+                      ],
+                    )),
+                  );
+                },
               ),
               const PopupMenuItem(
                 value: 2,
@@ -40,66 +102,77 @@ class HomeScreen extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (context) {
-                    String search = homeProviderTrue.txtSearch.text;
                     return AlertDialog(
                       title: const Text('Search Engine'),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           RadioListTile(
-                              title: Text('Google'),
+                              title: const Text('Google'),
                               value: 'Google',
                               groupValue: homeProviderTrue.selectedEngine,
                               onChanged: (value) {
-                                homeProviderFalse
-                                    .changeSelectedSearchEngine(value!);
-                                homeProviderFalse.searchCategory(search);
+                                homeProviderFalse.changeSelectedSearchEngine(
+                                    value!, data);
+                                _webViewController?.loadUrl(
+                                  urlRequest: URLRequest(
+                                    url: WebUri(
+                                        "https://www.${homeProviderTrue.selectedEngine}.com/search?q=$value"),
+                                  ),
+                                );
                                 Navigator.pop(context);
                               }),
                           RadioListTile(
-                              title: Text('Yahoo'),
+                              title: const Text('Yahoo'),
                               value: 'Yahoo',
                               groupValue: homeProviderTrue.selectedEngine,
                               onChanged: (value) {
-                                homeProviderFalse
-                                    .changeSelectedSearchEngine(value!);
-                                homeProviderFalse.searchCategory(search);
+                                homeProviderFalse.changeSelectedSearchEngine(
+                                    value!, data);
+                                _webViewController?.loadUrl(
+                                  urlRequest: URLRequest(
+                                    url: WebUri(
+                                        "https://www.${homeProviderTrue.selectedEngine}.com/search?q=$value"),
+                                  ),
+                                );
                                 Navigator.pop(context);
                               }),
                           RadioListTile(
-                              title: Text('Duck Duck Go'),
+                              title: const Text('Duck Duck Go'),
                               value: 'Duck Duck Go',
                               groupValue: homeProviderTrue.selectedEngine,
                               onChanged: (value) {
-                                homeProviderFalse
-                                    .changeSelectedSearchEngine(value!);
-                                homeProviderFalse.searchCategory(search);
+                                homeProviderFalse.changeSelectedSearchEngine(
+                                    value!, data);
+                                _webViewController?.loadUrl(
+                                  urlRequest: URLRequest(
+                                    url: WebUri(
+                                        "https://www.${homeProviderTrue.selectedEngine}.com/search?q=$value"),
+                                  ),
+                                );
                                 print(
                                     '=================================================================');
                                 Navigator.pop(context);
                               }),
                           RadioListTile(
-                            title: Text('bing'),
+                            title: const Text('bing'),
                             value: 'bing',
                             groupValue: homeProviderTrue.selectedEngine,
                             onChanged: (value) {
-                              homeProviderFalse
-                                  .changeSelectedSearchEngine(value!);
-                              homeProviderFalse.searchCategory(search);
+                              homeProviderFalse.changeSelectedSearchEngine(
+                                  value!, data);
+                              _webViewController?.loadUrl(
+                                urlRequest: URLRequest(
+                                  url: WebUri(
+                                      "https://www.${homeProviderTrue.selectedEngine}.com/search?q=$value"),
+                                ),
+                              );
                               Navigator.pop(context);
                             },
                           ),
                         ],
                       ),
                     );
-                  },
-                );
-              } else {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    homeProviderFalse.search.toString();
-                    return Text('--');
                   },
                 );
               }
@@ -116,11 +189,15 @@ class HomeScreen extends StatelessWidget {
                 controller: homeProviderFalse.txtSearch,
                 onSubmitted: (value) {
                   _webViewController?.loadUrl(
-                        urlRequest: URLRequest(
-                          url: WebUri(
-                              "https://www.google.com/search?q=$value"),
-                        ),
-                      );
+                    urlRequest: URLRequest(
+                      url: WebUri("https://www.google.com/search?q=$value"),
+                    ),
+                  );
+
+                  data = homeProviderTrue.txtSearch.text;
+                  homeProviderTrue.searchHistory(data!,
+                      'https://www.${homeProviderTrue.selectedEngine}.com/search?q=$data');
+
                   // homeProviderFalse.searchCategory(value);
                   print('--------------------------------------');
                 },
@@ -151,7 +228,7 @@ class HomeScreen extends StatelessWidget {
         height: 50,
         width: 100,
         decoration: BoxDecoration(color: Colors.grey.shade200),
-        child:  Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Icon(
@@ -159,13 +236,18 @@ class HomeScreen extends StatelessWidget {
               color: Colors.grey,
               size: 29,
             ),
-            Icon(
-              Icons.bookmark_add_outlined,
-              color: Colors.grey,
-              size: 29,
+            InkWell(
+              onTap: () {
+                homeProviderTrue.setData(data,
+                    'https://www.${homeProviderTrue.selectedEngine}.com/search?q=$data');
+              },
+              child: Icon(
+                Icons.bookmark_add_outlined,
+                size: 25,color: Colors.grey,
+              ),
             ),
             GestureDetector(
-              onTap: (){
+              onTap: () {
                 _webViewController?.goBack();
               },
               child: Icon(
@@ -173,22 +255,24 @@ class HomeScreen extends StatelessWidget {
                 color: Colors.grey,
               ),
             ),
-        GestureDetector(
-          onTap: (){
-            _webViewController?.reload();
-          },child: Icon(
-              Icons.refresh,
-              color: Colors.grey,
-            ),),
-
-        GestureDetector(
-          onTap: (){
-            _webViewController?.goForward();
-          },child:
-            Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.grey,
-            ),),
+            GestureDetector(
+              onTap: () {
+                _webViewController?.reload();
+              },
+              child: Icon(
+                Icons.refresh,
+                color: Colors.grey,
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                _webViewController?.goForward();
+              },
+              child: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey,
+              ),
+            ),
           ],
         ),
       ),
